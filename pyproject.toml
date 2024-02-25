@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "anonymize"
+version = "0.1.0"
+description = ""
+authors = []
+readme = "README.md"
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+lint.ignore = ["E501"]
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+  ".ipynb",
+]
+# Same as Black.
+line-length = 100
+
+[tool.coverage.run]
+omit = ["*/tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+fail_under = 80
+
+[tool.poe.tasks]
+format = "ruff format"
+type = "mypy -p anonymize"
+lint = "ruff . --fix"
+all = ["format", "lint", "type"]
+test = "pytest --cov=anonymize --cov-report=xml -p no:warnings tests"
+cov = "coverage report -m --precision=2"
+pre = "pre-commit run --files */* *"
+requirements = "poetry export --without-hashes -f requirements.txt --output requirements.txt && poetry export --dev --without-hashes -f requirements.txt --output requirements-dev.txt"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+polars = "^0.20.10"
+faker = "^23.2.1"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.2.2"
+pre-commit = "^3.6.2"
+mypy = "^1.8.0"
+pytest = "^8.0.1"
+poethepoet = "^0.24.4"
+coverage = "^7.4.3"
+types-pyyaml = "^6.0.12.12"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

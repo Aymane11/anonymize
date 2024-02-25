@@ -1,0 +1,28 @@
+source:
+  type: csv
+  path: ../data.csv
+  separator: ","
+output:
+  type: csv
+  path: ../out.csv
+  separator: ","
+rules:
+  - column: name
+    transform:
+      method: hash
+      algorithm: md5
+      salt: qsdjkazdhjkb
+  - column: email
+    transform:
+      method: fake
+      type: email
+  - column: cc
+    transform:
+      method: mask_right
+      n_chars: 3
+      mask_char: "x"
+  - column: birthdate
+    transform:
+      method: mask_left
+      n_chars: 4
+      mask_char: "*"
