@@ -1,10 +1,30 @@
 import yaml
+from models.transforms import Transform
+from models.sources import Source
+from models.outputs import Output
+from typing import List
+from pydantic import BaseModel, Field, ValidationError
 
 
-def load_config(path: str):
+class Rule(BaseModel):
+    column: str
+    transform: Transform = Field(..., discriminator="method")
+
+
+class Config(BaseModel):
+    source: Source
+    output: Output
+    rules: List[Rule]
+
+
+def load_config(path: str) -> Config:
     with open(path, "r") as file:
-        return yaml.safe_load(file)
+        config_dict = yaml.safe_load(file)
+        return validate_config(config_dict)
 
 
-def validate_config(path: str):
-    ...
+def validate_config(config_dict: dict) -> Config:
+    try:
+        return Config(**config_dict)
+    except ValidationError as e:
+        raise e

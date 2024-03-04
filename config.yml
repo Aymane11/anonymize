@@ -15,7 +15,7 @@ rules:
   - column: email
     transform:
       method: fake
-      type: email
+      faker_type: email
   - column: cc
     transform:
       method: mask_right
@@ -24,5 +24,5 @@ rules:
   - column: birthdate
     transform:
       method: mask_left
-      n_chars: 4
-      mask_char: "*"
+      n_chars: 2
+      mask_char: 1

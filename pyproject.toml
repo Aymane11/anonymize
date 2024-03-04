@@ -56,6 +56,8 @@ requirements = "poetry export --without-hashes -f requirements.txt --output requ
 python = "^3.9"
 polars = "^0.20.10"
 faker = "^23.2.1"
+pydantic = "^2.6.2"
+loguru = "^0.7.2"
 
 
 [tool.poetry.group.dev.dependencies]
