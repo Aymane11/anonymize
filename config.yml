@@ -1,28 +1,24 @@
 source:
-  type: csv
-  path: ../data.csv
-  separator: ","
+  type: db
+  uri: postgres://postgres:pass@localhost:5432/postgres
+  table: mydata
 output:
   type: csv
-  path: ../out.csv
+  path: out.csv
   separator: ","
 rules:
   - column: name
-    transform:
-      method: hash
-      algorithm: md5
-      salt: qsdjkazdhjkb
-  - column: email
-    transform:
-      method: fake
-      faker_type: email
+    method: hash
+    algorithm: md5
+    salt: qsdjkazdhjkb
+  - column: name
+    method: fake
+    faker_type: firstname
   - column: cc
-    transform:
-      method: mask_right
-      n_chars: 3
-      mask_char: "x"
+    method: mask_right
+    n_chars: 3
+    mask_char: "x"
   - column: birthdate
-    transform:
-      method: mask_left
-      n_chars: 2
-      mask_char: 1
+    method: mask_left
+    n_chars: 4
+    mask_char: x

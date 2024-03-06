@@ -1,20 +1,16 @@
 import yaml
-from models.transforms import Transform
-from models.sources import Source
-from models.outputs import Output
 from typing import List
 from pydantic import BaseModel, Field, ValidationError
 
-
-class Rule(BaseModel):
-    column: str
-    transform: Transform = Field(..., discriminator="method")
+from .sources import Source
+from .outputs import Output
+from .rules import Rule
 
 
 class Config(BaseModel):
     source: Source
     output: Output
-    rules: List[Rule]
+    rules: List[Rule] = Field(..., discriminator="method")
 
 
 def load_config(path: str) -> Config:

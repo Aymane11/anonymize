@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, validator
 
 
 class HashTransform(BaseModel):
+    column: str
     method: Literal["hash"]
     algorithm: str
     salt: str
@@ -17,6 +18,7 @@ class HashTransform(BaseModel):
 
 
 class FakeTransform(BaseModel):
+    column: str
     method: Literal["fake"]
     faker_type: str
 
@@ -29,6 +31,7 @@ class FakeTransform(BaseModel):
 
 
 class MaskRightTransform(BaseModel):
+    column: str
     method: Literal["mask_right"]
     n_chars: int = Field(..., gt=1)
     mask_char: str = Field(min_length=1, max_length=1)
@@ -38,6 +41,7 @@ class MaskRightTransform(BaseModel):
 
 
 class MaskLeftTransform(BaseModel):
+    column: str
     method: Literal["mask_left"]
     n_chars: int = Field(..., gt=1)
     mask_char: str = Field(min_length=1, max_length=1)
@@ -46,4 +50,4 @@ class MaskLeftTransform(BaseModel):
         coerce_numbers_to_str = True
 
 
-Transform = Union[HashTransform, FakeTransform, MaskRightTransform, MaskLeftTransform]
+Rule = Union[HashTransform, FakeTransform, MaskRightTransform, MaskLeftTransform]
