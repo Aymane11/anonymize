@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "*.md"
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - "*.md"
+
+jobs:
+  ci:
+    strategy:
+      fail-fast: true
+      max-parallel: 2
+      matrix:
+        python-version: [3.8, 3.9]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Install python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Lint code with ruff
+        run: poetry run poe lint
+
+      - name: Check types with mypy
+        run: poetry run poe type
+
+      - name: Test with pytest
+        run: poetry run poe test
+
+      - name: Code coverage
+        run: poetry run poe cov
