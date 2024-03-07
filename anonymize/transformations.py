@@ -48,7 +48,7 @@ def mask_right_transform(df, column, mask_char, n_chars, **kwargs):
                 ignore_nulls=True,
             ),
         )
-        .otherwise(pl.lit(mask_char * n_chars))
+        .otherwise(pl.col(column).cast(pl.String).str.replace_all(r".", mask_char))
         .alias(column)
     )
 
@@ -66,6 +66,6 @@ def mask_left_transform(df, column, mask_char, n_chars, **kwargs):
                 ignore_nulls=True,
             ),
         )
-        .otherwise(pl.lit(mask_char * n_chars))
+        .otherwise(pl.col(column).cast(pl.String).str.replace_all(r".", mask_char))
         .alias(column)
     )
