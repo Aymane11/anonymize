@@ -48,7 +48,9 @@ jobs:
       - name: Code coverage
         run: poetry run poe cov
 
-      - name: Code Coverage Summary Report
+      - if : runner.os == 'Linux'
+        name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: coverage.xml
+          filename: ${{ github.workspace }}/coverage.xml
+          format: markdown
