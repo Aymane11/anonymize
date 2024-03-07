@@ -13,7 +13,7 @@ class AbstractDataSource(ABC):
 
 
 class CSVSource(BaseModel, AbstractDataSource):
-    type: Literal["csv"]
+    type: Literal["csv"] = "csv"
     path: str
     separator: str = ","
     _data_read: bool = False
@@ -38,7 +38,7 @@ class CSVSource(BaseModel, AbstractDataSource):
 
 
 class DBSource(BaseModel, AbstractDataSource):
-    type: Literal["db"]
+    type: Literal["db"] = "db"
     uri: str
     table: str
     _offset: int = 0

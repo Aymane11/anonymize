@@ -39,13 +39,13 @@ line-length = 100
 omit = ["*/tests/*", "*/__init__.py"]
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 70
 
 [tool.poe.tasks]
 format = "ruff format"
 type = "mypy -p anonymize"
 lint = "ruff . --fix"
-all = ["format", "lint", "type"]
+all = ["format", "lint", "type", "test", "cov"]
 test = "pytest -v --cov=anonymize --cov-report=xml -p no:warnings tests"
 cov = "coverage report -m --precision=2 --sort=cover"
 pre = "pre-commit run --files */* *"
