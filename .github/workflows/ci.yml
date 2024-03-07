@@ -45,7 +45,8 @@ jobs:
       - name: Test with pytest
         run: poetry run poe test
 
-      - name: Code coverage
+      - if: runner.os != 'Windows'
+        name: Publish code coverage
         run: |
           COV_OUTPUT=$(poetry run poe cov --format=markdown)
           echo $COV_OUTPUT
