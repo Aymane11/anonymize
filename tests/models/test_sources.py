@@ -24,6 +24,8 @@ def test_db_source_read_data(db_read_mocker):
     db_source = DBSource(type="db", uri="db://localhost:5432", table="users")
     actual = db_source.read_data()
 
-    db_read_mocker.assert_called_once_with(query="SELECT * FROM users", uri="db://localhost:5432")
+    db_read_mocker.assert_called_once_with(
+        query="SELECT * FROM users", uri="db://localhost:5432", engine="connectorx"
+    )
 
     assert isinstance(actual, pl.LazyFrame)

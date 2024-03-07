@@ -40,7 +40,7 @@ class DBSource(BaseModel, AbstractDataSource):
         logger.info(f"Reading data from table {self.table} using uri {self.uri}")
         # TODO: make this more robust (use ORM maybe?)
         query = f"SELECT * FROM {self.table}"
-        return pl.read_database_uri(query=query, uri=self.uri).lazy()
+        return pl.read_database_uri(query=query, uri=self.uri, engine="connectorx").lazy()
 
 
 Source = Union[CSVSource, DBSource]

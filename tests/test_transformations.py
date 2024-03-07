@@ -1,16 +1,16 @@
 import polars as pl
-from anonymize.transformations import (
-    fake_transform,
-    hash_transform,
-    mask_right_transform,
-    mask_left_transform,
+from anonymize.models.rules import (
+    MaskRightTransform,
+    MaskLeftTransform,
+    FakeTransform,
+    HashTransform,
 )
 from .conftest import compare_dataframes
 
 
 def test_hash_transform():
     df = pl.DataFrame({"data": ["ABC123", "Hello World!"]})
-    actual = hash_transform(df, "data", "sha256", "salt")
+    actual = HashTransform(column="data", algorithm="sha256", salt="salt").apply(df)
 
     expected = pl.DataFrame(
         {
@@ -26,7 +26,7 @@ def test_hash_transform():
 
 def test_mask_right_transform():
     df = pl.DataFrame({"name": ["John", "Doe", "", "A"]})
-    actual = mask_right_transform(df, "name", "*", 2)
+    actual = MaskRightTransform(column="name", n_chars=2, mask_char="*").apply(df)
 
     expected = pl.DataFrame({"name": ["Jo**", "D**", "", "*"]})
 
@@ -35,7 +35,7 @@ def test_mask_right_transform():
 
 def test_mask_left_transform():
     df = pl.DataFrame({"name": ["Johnny", "Doe", "", "1b", "."]})
-    actual = mask_left_transform(df, "name", "*", 3)
+    actual = MaskLeftTransform(column="name", n_chars=3, mask_char="*").apply(df)
 
     expected = pl.DataFrame({"name": ["***nny", "***", "", "**", "*"]})
 
@@ -44,13 +44,13 @@ def test_mask_left_transform():
 
 def test_fake_transform_firstname():
     df = pl.DataFrame({"name": ["John", "Doe", "Alice"]})
-    actual = fake_transform(df, "name", "firstname")
+    actual = FakeTransform(column="name", faker_type="firstname").apply(df)
 
     assert actual["name"].dtype == pl.String
 
 
 def test_fake_transform_email():
-    df = pl.DataFrame({"email": ["john@example.com", "doe@example.com", "alice@example.com"]})
-    actual = fake_transform(df, "email", "email")
+    df = pl.DataFrame({"mail": ["john@example.com", "doe@example.com", "alice@example.com"]})
+    actual = FakeTransform(column="mail", faker_type="email").apply(df)
 
-    assert set(actual["email"].str.contains("@").to_list()) == {True}
+    assert set(actual["mail"].str.contains("@").to_list()) == {True}
