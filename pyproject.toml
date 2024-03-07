@@ -46,8 +46,8 @@ format = "ruff format"
 type = "mypy -p anonymize"
 lint = "ruff . --fix"
 all = ["format", "lint", "type"]
-test = "pytest --cov=anonymize --cov-report=xml -p no:warnings tests"
-cov = "coverage report -m --precision=2"
+test = "pytest -v --cov=anonymize --cov-report=xml -p no:warnings tests"
+cov = "coverage report -m --precision=2 --sort=cover"
 pre = "pre-commit run --files */* *"
 requirements = "poetry export --without-hashes -f requirements.txt --output requirements.txt && poetry export --dev --without-hashes -f requirements.txt --output requirements-dev.txt"
 
