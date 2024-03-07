@@ -46,11 +46,9 @@ jobs:
         run: poetry run poe test
 
       - name: Code coverage
-        run: poetry run poe cov
-
-      - if : runner.os == 'Linux'
-        name: Code Coverage Summary Report
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: coverage.xml
-          format: markdown
+        run: |
+          COV_OUTPUT=$(poetry run poe cov --format=markdown)
+          echo $COV_OUTPUT
+          echo '## Test Coverage Report\n' >> $GITHUB_STEP_SUMMARY
+          # Remove the first line of the coverage report
+          echo "$COV_OUTPUT" | tail -n +2 >> $GITHUB_STEP_SUMMARY
