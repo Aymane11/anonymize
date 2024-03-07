@@ -53,4 +53,4 @@ def test_fake_transform_email():
     df = pl.DataFrame({"email": ["john@example.com", "doe@example.com", "alice@example.com"]})
     actual = fake_transform(df, "email", "email")
 
-    assert set(actual['email'].str.contains("@").to_list()) == {True}
+    assert set(actual["email"].str.contains("@").to_list()) == {True}
