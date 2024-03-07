@@ -50,6 +50,6 @@ jobs:
         run: |
           COV_OUTPUT=$(poetry run poe cov --format=markdown)
           echo $COV_OUTPUT
-          echo '## Test Coverage Report\n' >> $GITHUB_STEP_SUMMARY
+          echo '## Test Coverage Report' >> $GITHUB_STEP_SUMMARY
           # Remove the first line of the coverage report
           echo "$COV_OUTPUT" | tail -n +2 >> $GITHUB_STEP_SUMMARY
