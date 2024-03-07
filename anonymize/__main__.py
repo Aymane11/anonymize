@@ -1,18 +1,29 @@
+import sys
 from anonymize import load_config, Config
 
 from loguru import logger
 import argparse
+import polars as pl
 
 
 def main(config: Config):
-    data = config.source.read_data()
-    for rule in config.rules:
-        if rule.column not in data.columns:
-            logger.warning(f"Column {rule.column} not found in the dataset. Skipping.")
-            continue
-        data = rule.apply(data)
+    dfs: list[pl.LazyFrame] = []
+    for data in config.source:
+        if len(dfs) > 0:
+            logger.remove()
+        for rule in config.rules:
+            if rule.column not in data.columns:
+                logger.warning(f"Column {rule.column} not found in the dataset. Skipping.")
+                continue
+            data = rule.apply(data)
+        dfs.append(data)
 
-    config.output.write_data(data)
+    logger.add(
+        sys.stdout,
+        colorize=True,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
+    )
+    config.output.write_data(pl.concat(dfs))
 
 
 if __name__ == "__main__":
