@@ -10,6 +10,7 @@ def main(config: Config):
     dfs: list[pl.LazyFrame] = []
     for data in config.source:
         if len(dfs) > 0:
+            # In case of database, no need to log every time
             logger.remove()
         for rule in config.rules:
             if rule.column not in data.columns:

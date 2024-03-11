@@ -1,5 +1,5 @@
 from typing import Literal, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from abc import ABC, abstractmethod
 from loguru import logger
@@ -40,14 +40,14 @@ class CSVSource(BaseModel, AbstractDataSource):
 class DBSource(BaseModel, AbstractDataSource):
     type: Literal["db"] = "db"
     uri: str
-    table: str
+    table: str = Field(pattern=r"^[a-zA-Z_][a-zA-Z0-9_]*$")
     _offset: int = 0
 
     @property
     def is_database(self) -> bool:
         return True
 
-    def read_data(self, limit=10000) -> pl.LazyFrame:
+    def read_data(self, limit=10_000) -> pl.LazyFrame:
         if self._offset != 0:
             logger.remove()
         logger.info(f"Reading data from table {self.table} using uri {self.uri}")
