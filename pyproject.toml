@@ -49,7 +49,8 @@ all = ["format", "lint", "type", "test", "cov"]
 test = "pytest -v --cov=anonymize --cov-report=xml -p no:warnings tests"
 cov = "coverage report -m --precision=2 --sort=cover"
 pre = "pre-commit run --files */* *"
-requirements = "poetry export --without-hashes -f requirements.txt --output requirements.txt && poetry export --dev --without-hashes -f requirements.txt --output requirements-dev.txt"
+reqs = "poetry export --without-hashes -f requirements.txt --output requirements.txt"
+reqsdev = "poetry export --with dev --without-hashes -f requirements.txt --output requirements-dev.txt"
 
 
 [tool.poetry.dependencies]
@@ -59,6 +60,7 @@ faker = "^23.2.1"
 pydantic = "^2.6.2"
 loguru = "^0.7.2"
 pyarrow = "^15.0.0"
+pyyaml = "^6.0.1"
 connectorx = "^0.3.2"
 
 
