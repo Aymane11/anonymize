@@ -2,10 +2,7 @@ from anonymize.models.rules import FakeTransform, HashTransform
 import pytest
 from contextlib import nullcontext as does_not_raise
 import polars as pl
-from anonymize.models.rules import (
-    MaskRightTransform,
-    MaskLeftTransform,
-)
+from anonymize.models.rules import MaskRightTransform, MaskLeftTransform, DestroyTransform
 from .conftest import compare_dataframes
 
 
@@ -79,3 +76,12 @@ def test_fake_transform_email():
     actual = FakeTransform(column="mail", faker_type="email").apply(df)
 
     assert set(actual["mail"].str.contains("@").to_list()) == {True}
+
+
+def test_destroy_transform():
+    df = pl.DataFrame({"name": ["John", "Doe", "Alice"]})
+    actual = DestroyTransform(column="name", replace_with="hidden data").apply(df)
+
+    expected = pl.DataFrame({"name": ["hidden data", "hidden data", "hidden data"]})
+
+    compare_dataframes(actual, expected)
