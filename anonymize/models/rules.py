@@ -129,4 +129,16 @@ class MaskLeftTransform(BaseModel):
         coerce_numbers_to_str = True
 
 
-Rule = Union[HashTransform, FakeTransform, MaskRightTransform, MaskLeftTransform]
+class DestroyTransform(BaseModel):
+    column: str
+    method: Literal["destroy"] = "destroy"
+    replace_with: str = "CONFIDENTIAL"
+
+    def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        logger.info(
+            f"Applying destroy transformation on column {self.column} with replacement {self.replace_with}"
+        )
+        return data.with_columns(pl.lit(self.replace_with).alias(self.column))
+
+
+Rule = Union[HashTransform, FakeTransform, MaskRightTransform, MaskLeftTransform, DestroyTransform]
