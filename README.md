@@ -93,6 +93,15 @@ rules:
     mask_char: "*"
 ```
 
+#### Destroy (replace with a fixed value)
+> The destroy name is inspired from [postgresql_anonymizer](https://postgresql-anonymizer.readthedocs.io/en/stable/masking_functions/#destruction)
+```yaml
+rules:
+  - column: email
+    method: destroy
+    replace_with: "SOME VALUE" # Optional, default is "CONFIDENTIAL"
+
+
 ## Contributing
 
 - :fork_and_knife: Fork the repository

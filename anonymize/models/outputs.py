@@ -13,7 +13,7 @@ class AbstractDataOutput(ABC):
 
 
 class CSVOutput(BaseModel, AbstractDataOutput):
-    type: Literal["csv"]
+    type: Literal["csv"] = "csv"
     path: str
     separator: str = ","
 
