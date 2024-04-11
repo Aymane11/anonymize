@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field, validator
 import hashlib
 from loguru import logger
 import polars as pl
-from faker import Faker
+from mimesis import Generic
 
-faker = Faker()
+faker = Generic()
 
 
 class AbstractTransform(ABC):
@@ -57,9 +57,9 @@ class FakeTransform(BaseModel, AbstractTransform):
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
         logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
         if self.faker_type == "email":
-            faker_method = faker.email
+            faker_method = faker.person.email
         elif self.faker_type == "firstname":
-            faker_method = faker.first_name
+            faker_method = faker.person.first_name
         return data.with_columns(
             pl.col(self.column)
             .cast(pl.String)
