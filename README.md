@@ -100,7 +100,7 @@ rules:
   - column: email
     method: destroy
     replace_with: "SOME VALUE" # Optional, default is "CONFIDENTIAL"
-
+```
 
 ## Contributing
 
