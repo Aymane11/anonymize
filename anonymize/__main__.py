@@ -1,4 +1,3 @@
-import sys
 from anonymize import load_config, Config
 
 from loguru import logger
@@ -9,9 +8,6 @@ import polars as pl
 def main(config: Config):
     dfs: list[pl.LazyFrame] = []
     for data in config.source:
-        if len(dfs) > 0:
-            # In case of database, no need to log every time
-            logger.remove()
         for rule in config.rules:
             if rule.column not in data.columns:
                 logger.warning(f"Column {rule.column} not found in the dataset. Skipping.")
@@ -19,11 +15,6 @@ def main(config: Config):
             data = rule.apply(data)
         dfs.append(data)
 
-    logger.add(
-        sys.stdout,
-        colorize=True,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
-    )
     config.output.write_data(pl.concat(dfs))
 
 

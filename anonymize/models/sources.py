@@ -1,3 +1,4 @@
+import sys
 from typing import Literal, Union
 from pydantic import BaseModel, Field
 
@@ -62,6 +63,12 @@ class DBSource(BaseModel, AbstractDataSource):
     def __next__(self):
         data = self.read_data()
         if data.first().collect().is_empty():
+            # Bring back the logger
+            logger.add(
+                sys.stdout,
+                colorize=True,
+                format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level}</level> | <level>{message}</level>",
+            )
             raise StopIteration
         return data
 
