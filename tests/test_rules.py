@@ -71,6 +71,14 @@ def test_fake_transform_firstname():
     assert actual["name"].dtype == pl.String
 
 
+def test_fake_transform_non():
+    df = pl.DataFrame({"name": ["John", "Doe", "Alice"]})
+    faker = FakeTransform(column="name", faker_type="email")
+    faker.faker_type = "nonexistent"
+    with pytest.raises(ValueError, match="Unknown faker type nonexistent"):
+        _ = faker.apply(df)
+
+
 def test_fake_transform_email():
     df = pl.DataFrame({"mail": ["john@example.com", "doe@example.com", "alice@example.com"]})
     actual = FakeTransform(column="mail", faker_type="email").apply(df)
