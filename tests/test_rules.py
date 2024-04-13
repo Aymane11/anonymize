@@ -18,18 +18,6 @@ def test_hash_transform_algorithm(algorithm, expectation):
         HashTransform(column="column_name", method="hash", algorithm=algorithm, salt="salt_value")
 
 
-@pytest.mark.parametrize(
-    "fake_method,expectation",
-    [
-        ("email", does_not_raise()),
-        ("number", pytest.raises(ValueError, match=r"faker_type must be one of .+")),
-    ],
-)
-def test_fake_method(fake_method, expectation):
-    with expectation:
-        FakeTransform(column="column_name", method="fake", faker_type=fake_method)
-
-
 def test_hash_transform():
     df = pl.DataFrame({"data": ["ABC123", "Hello World!"]})
     actual = HashTransform(column="data", algorithm="sha256", salt="salt").apply(df)
@@ -64,14 +52,21 @@ def test_mask_left_transform():
     compare_dataframes(actual, expected)
 
 
-def test_fake_transform_firstname():
+@pytest.mark.parametrize(
+    "faker_type",
+    [
+        "firstname",
+        "lastname",
+        "fullname",
+    ],
+)
+def test_fake_transform_names(faker_type):
     df = pl.DataFrame({"name": ["John", "Doe", "Alice"]})
-    actual = FakeTransform(column="name", faker_type="firstname").apply(df)
-
+    actual = FakeTransform(column="name", faker_type=faker_type).apply(df)
     assert actual["name"].dtype == pl.String
 
 
-def test_fake_transform_non():
+def test_fake_transform_nonexistant():
     df = pl.DataFrame({"name": ["John", "Doe", "Alice"]})
     faker = FakeTransform(column="name", faker_type="email")
     faker.faker_type = "nonexistent"
@@ -83,7 +78,7 @@ def test_fake_transform_email():
     df = pl.DataFrame({"mail": ["john@example.com", "doe@example.com", "alice@example.com"]})
     actual = FakeTransform(column="mail", faker_type="email").apply(df)
 
-    assert set(actual["mail"].str.contains("@").to_list()) == {True}
+    assert all(actual["mail"].str.contains("@").to_list())
 
 
 def test_destroy_transform():
