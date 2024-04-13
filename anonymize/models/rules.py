@@ -49,6 +49,8 @@ class FakeTransform(BaseModel, AbstractTransform):
     _faker_methods: ClassVar[Dict[str, Callable[[], str]]] = {
         "email": faker.person.email,
         "firstname": faker.person.first_name,
+        "lastname": faker.person.last_name,
+        "fullname": faker.person.full_name,
     }
 
     @validator("faker_type")
@@ -59,12 +61,11 @@ class FakeTransform(BaseModel, AbstractTransform):
         return v
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
-        logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
-
         faker_method = self._faker_methods.get(self.faker_type)
         if not faker_method:
             raise ValueError(f"Unknown faker type {self.faker_type}")
 
+        logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
         return data.with_columns(
             pl.col(self.column)
             .cast(pl.String)

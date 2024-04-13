@@ -68,11 +68,12 @@ rules:
 ```
 
 #### Fake
+Available types are: `email`, `firstname`, `lastname`, `fullname`.
 ```yaml
 rules:
   - column: name
     method: fake
-    faker_type: firstname # or email
+    faker_type: firstname
 ```
 
 #### Mask right (last n characters)
