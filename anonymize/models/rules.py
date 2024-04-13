@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Literal, Union
+from typing import Callable, ClassVar, Dict, Literal, Union
 from pydantic import BaseModel, Field, validator
 
 import hashlib
@@ -46,24 +46,30 @@ class FakeTransform(BaseModel, AbstractTransform):
     column: str
     method: Literal["fake"] = "fake"
     faker_type: str
+    _faker_methods: ClassVar[Dict[str, Callable[[], str]]] = {
+        "email": faker.person.email,
+        "firstname": faker.person.first_name,
+        "lastname": faker.person.last_name,
+        "fullname": faker.person.full_name,
+    }
 
     @validator("faker_type")
     def validate_type(cls, v):
-        AVAILABLE_TYPES = {"email", "firstname"}
-        if v not in AVAILABLE_TYPES:
-            raise ValueError(f"faker_type must be one of {AVAILABLE_TYPES}")
+        available_types = cls._faker_methods.keys()
+        if v not in available_types:
+            raise ValueError(f"faker_type must be one of {available_types}")
         return v
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        faker_method = self._faker_methods.get(self.faker_type)
+        if not faker_method:
+            raise ValueError(f"Unknown faker type {self.faker_type}")
+
         logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
-        if self.faker_type == "email":
-            faker_method = faker.person.email
-        elif self.faker_type == "firstname":
-            faker_method = faker.person.first_name
         return data.with_columns(
             pl.col(self.column)
             .cast(pl.String)
-            .map_elements(lambda x: faker_method(), return_dtype=pl.String)
+            .map_elements(lambda _: faker_method(), return_dtype=pl.String)
         )
 
 
