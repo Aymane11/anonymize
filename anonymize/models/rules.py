@@ -1,4 +1,6 @@
 from abc import abstractmethod, ABC
+import random
+import string
 from typing import Callable, ClassVar, Dict, Literal, Union
 from pydantic import BaseModel, Field, validator
 
@@ -67,9 +69,7 @@ class FakeTransform(BaseModel, AbstractTransform):
 
         logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
         return data.with_columns(
-            pl.col(self.column)
-            .cast(pl.String)
-            .map_elements(lambda _: faker_method(), return_dtype=pl.String)
+            pl.col(self.column).map_elements(lambda _: faker_method(), return_dtype=pl.String)
         )
 
 
@@ -147,4 +147,31 @@ class DestroyTransform(BaseModel):
         return data.with_columns(pl.lit(self.replace_with).alias(self.column))
 
 
-Rule = Union[HashTransform, FakeTransform, MaskRightTransform, MaskLeftTransform, DestroyTransform]
+class ShuffleRule(BaseModel):
+    column: str
+    method: Literal["shuffle"] = "shuffle"
+
+    def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        logger.info(f"Applying shuffle transformation on column {self.column}")
+        shuffled_digits = list(string.digits)
+        shuffled_letters = list(string.ascii_letters)
+        random.shuffle(shuffled_digits)
+        random.shuffle(shuffled_letters)
+        return data.with_columns(
+            pl.col(self.column)
+            .cast(pl.String)
+            .str.replace_many(
+                list(string.digits + string.ascii_letters), list(shuffled_digits + shuffled_letters)
+            )
+            .alias(self.column)
+        )
+
+
+Rule = Union[
+    HashTransform,
+    FakeTransform,
+    MaskRightTransform,
+    MaskLeftTransform,
+    DestroyTransform,
+    ShuffleRule,
+]

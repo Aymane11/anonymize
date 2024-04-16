@@ -103,6 +103,14 @@ rules:
     replace_with: "SOME VALUE" # Optional, default is "CONFIDENTIAL"
 ```
 
+#### Shuffle
+> Shuffle letters and numbers separately (example: `abc1.2!3` -> `skM4.9!0`)
+```yaml
+rules:
+  - column: email
+    method: shuffle
+```
+
 ## Contributing
 
 - :fork_and_knife: Fork the repository
@@ -116,3 +124,5 @@ rules:
 - [ ] Add database output
 - [ ] Validation (especially for database sources)
 - [ ] More rules (rounding, etc.)
+  - [x] Destroy
+  - [x] Shuffle

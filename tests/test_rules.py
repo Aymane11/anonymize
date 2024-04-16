@@ -1,4 +1,4 @@
-from anonymize.models.rules import FakeTransform, HashTransform
+from anonymize.models.rules import FakeTransform, HashTransform, ShuffleRule
 import pytest
 from contextlib import nullcontext as does_not_raise
 import polars as pl
@@ -10,7 +10,7 @@ from .conftest import compare_dataframes
     "algorithm,expectation",
     [
         ("md5", does_not_raise()),
-        ("invalid_algo", pytest.raises(ValueError, match=r"algorithm must be one of .+")),
+        ("invalid_algo", pytest.raises(ValueError, match="algorithm must be one of")),
     ],
 )
 def test_hash_transform_algorithm(algorithm, expectation):
@@ -74,6 +74,11 @@ def test_fake_transform_nonexistant():
         _ = faker.apply(df)
 
 
+def test_fake_transform_validate():
+    with pytest.raises(ValueError, match="faker_type must be one of"):
+        _ = FakeTransform(column="name", faker_type="nonexistent")
+
+
 def test_fake_transform_email():
     df = pl.DataFrame({"mail": ["john@example.com", "doe@example.com", "alice@example.com"]})
     actual = FakeTransform(column="mail", faker_type="email").apply(df)
@@ -88,3 +93,11 @@ def test_destroy_transform():
     expected = pl.DataFrame({"name": ["hidden data", "hidden data", "hidden data"]})
 
     compare_dataframes(actual, expected)
+
+
+# Run multiple times
+@pytest.mark.parametrize("execution_number", range(5))
+def test_shuffle_rule(execution_number):
+    df = pl.DataFrame({"name": ["John", "123 Salam", "Hello, World!"]})
+    actual = ShuffleRule(column="name").apply(df)
+    assert df["name"].to_list() != actual["name"].to_list()
