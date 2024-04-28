@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 import random
 import string
 from typing import Callable, ClassVar, Dict, Literal, Union
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, validator
 
 import hashlib
 from loguru import logger
@@ -26,13 +26,16 @@ class HashTransform(BaseModel, AbstractTransform):
 
     @validator("algorithm")
     def validate_algorithm(cls, v):
-        import hashlib
-
         if v not in hashlib.algorithms_available:
             raise ValueError(f"algorithm must be one of {hashlib.algorithms_available}")
         return v
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        col_type = data.schema[self.column]
+        if col_type != pl.String:
+            logger.warning(
+                f"Column {self.column} is of type {col_type}, hashing results will be of type String"
+            )
         logger.info(f"Applying {self.algorithm} hash transformation on column {self.column}")
         hash_fun = getattr(hashlib, self.algorithm)
         return data.with_columns(
@@ -67,6 +70,11 @@ class FakeTransform(BaseModel, AbstractTransform):
         if not faker_method:
             raise ValueError(f"Unknown faker type {self.faker_type}")
 
+        col_type = data.schema[self.column]
+        if col_type != pl.String:
+            logger.warning(
+                f"Column {self.column} is of type {col_type}, faking results will be of type String"
+            )
         logger.info(f"Applying fake {self.faker_type} transformation on column {self.column}")
         return data.with_columns(
             pl.col(self.column).map_elements(lambda _: faker_method(), return_dtype=pl.String)
@@ -74,12 +82,19 @@ class FakeTransform(BaseModel, AbstractTransform):
 
 
 class MaskRightTransform(BaseModel, AbstractTransform):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     column: str
     method: Literal["mask_right"] = "mask_right"
     n_chars: int = Field(..., gt=1)
     mask_char: str = Field(min_length=1, max_length=1)
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        col_type = data.schema[self.column]
+        if col_type != pl.String:
+            logger.warning(
+                f"Column {self.column} is of type {col_type}, right masking results will be of type String"
+            )
         logger.info(
             f"Applying mask_right ({self.n_chars}/{self.mask_char}) transformation on column {self.column}"
         )
@@ -102,17 +117,21 @@ class MaskRightTransform(BaseModel, AbstractTransform):
             .alias(self.column)
         )
 
-    class Config:
-        coerce_numbers_to_str = True
-
 
 class MaskLeftTransform(BaseModel):
+    model_config = ConfigDict(coerce_numbers_to_str=True)
+
     column: str
     method: Literal["mask_left"] = "mask_left"
     n_chars: int = Field(..., gt=1)
     mask_char: str = Field(min_length=1, max_length=1)
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        col_type = data.schema[self.column]
+        if col_type != pl.String:
+            logger.warning(
+                f"Column {self.column} is of type {col_type}, left masking results will be of type String"
+            )
         logger.info(
             f"Applying mask_left ({self.n_chars}/{self.mask_char}) transformation on column {self.column}"
         )
@@ -131,9 +150,6 @@ class MaskLeftTransform(BaseModel):
             .alias(self.column)
         )
 
-    class Config:
-        coerce_numbers_to_str = True
-
 
 class DestroyTransform(BaseModel):
     column: str
@@ -141,6 +157,11 @@ class DestroyTransform(BaseModel):
     replace_with: str = "CONFIDENTIAL"
 
     def apply(self, data: pl.LazyFrame) -> pl.LazyFrame:
+        col_type = data.schema[self.column]
+        if col_type != pl.String:
+            logger.warning(
+                f"Column {self.column} is of type {col_type}, destroy results will be of type String"
+            )
         logger.info(
             f"Applying destroy transformation on column {self.column} with replacement {self.replace_with}"
         )
