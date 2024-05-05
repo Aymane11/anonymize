@@ -12,6 +12,7 @@ def main(config: Config):
             if rule.column not in data.columns:
                 logger.warning(f"Column {rule.column} not found in the dataset. Skipping.")
                 continue
+            # TODO: Add keep_type param, run the rule only if the column type is compatible
             data = rule.apply(data)
         dfs.append(data)
 
